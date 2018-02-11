@@ -1,0 +1,11 @@
+# rust_stereo_block_matching_practice
+
+# Requirement
+- [Rust](https://www.rust-lang.org)
+
+# License
+MIT
+
+# References
+- [Stereo Vision Tutorial](http://mccormickml.com/2014/01/10/stereo-vision-tutorial-part-i/)
+- [PistonDevelopers/image](https://github.com/PistonDevelopers/image)
