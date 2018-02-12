@@ -1,7 +1,7 @@
 extern crate image;
 #[macro_use(s)]
 extern crate ndarray;
-use image::{GenericImage, GrayImage};
+use image::{GenericImage, RgbImage};
 use ndarray::{Array, Array2};
 use std::ops::Sub;
 
@@ -66,6 +66,28 @@ fn block_match(left_mat: &Array2<f32>, right_mat: &Array2<f32>, block_w: usize, 
     Array::from_vec(diff_vec).into_shape((h, w)).unwrap()
 }
 
+fn hsv_to_rgb(h: u8, s: u8, v: u8) -> Vec<u8> {
+    let hf = (h as f32 * 360. / std::u8::MAX as f32) / 60.;
+    let sf = s as f32 / std::u8::MAX as f32;
+    let vf = v as f32;
+    let h_floor = hf.floor();
+    let ff = hf - h_floor;
+    let p = (vf * (1. - sf)) as u8;
+    let q = (vf * (1. - sf * ff)) as u8;
+    let t = (vf * (1. - sf * (1. - ff))) as u8;
+
+    match h_floor as u8 {
+        0 => vec![v, t, p],
+        1 => vec![q, v, p],
+        2 => vec![p, v, t],
+        3 => vec![p, q, v],
+        4 => vec![t, p, v],
+        5 => vec![v, p, q],
+        6 => vec![v, t, p],
+        _ => vec![0, 0, 0],
+    }
+}
+
 fn main() {
     // let left_image_file_name = "data/aloeL.jpg";
     // let right_image_file_name = "data/aloeR.jpg";
@@ -78,8 +100,11 @@ fn main() {
     let block_h = 11;
     let max_diff = w/4;
     let result_mat = block_match(&left_mat, &right_mat, block_w, block_h, max_diff);
-    let result_mat = 255. - (result_mat * (255. / max_diff as f32));
-    let pixels = result_mat.into_shape(w * h).unwrap().to_vec().into_iter().map(|p| p as u8).collect();
-    let result_image = GrayImage::from_raw(w as u32, h as u32, pixels).unwrap();
+    let result_mat = result_mat * std::u8::MAX as f32 / (max_diff + 2) as f32;
+    let mut pixels = vec![];
+    for p in result_mat.into_shape(w * h).unwrap().to_vec() {
+        pixels.extend(hsv_to_rgb(p as u8, 255, 255));
+    }
+    let result_image = RgbImage::from_raw(w as u32, h as u32, pixels).unwrap();
     let _saved = result_image.save("result.png");
 }
