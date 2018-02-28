@@ -100,7 +100,8 @@ fn main() {
     let block_h = 11;
     let max_diff = w/4;
     let result_mat = block_match(&left_mat, &right_mat, block_w, block_h, max_diff);
-    let result_mat = (max_diff - result_mat) / max_diff * 200;
+    let max_diff_f32 =  max_diff as f32;
+    let result_mat = (max_diff_f32 - result_mat) / max_diff_f32 * 200.0;
     let mut pixels = vec![];
     for p in result_mat.into_shape(w * h).unwrap().to_vec() {
         pixels.extend(hsv_to_rgb(p as u8, 255, 255));
