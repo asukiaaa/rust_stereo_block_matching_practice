@@ -44,16 +44,16 @@ fn get_diff_point(left_mat: &Array2<f32>, right_mat: &Array2<f32>, block_w: usiz
     point
 }
 
-fn block_match(left_mat: &Array2<f32>, right_mat: &Array2<f32>, block_w: usize, block_h: usize, max_diff: usize) -> Array2<f32> {
+fn block_match(left_mat: &Array2<f32>, right_mat: &Array2<f32>, block_w: usize, block_h: usize, diff_len: usize) -> Array2<f32> {
     let (w, h) = mat_wh(&left_mat);
-    let mut diff_vec = vec![max_diff as f32; w * h];
+    let mut diff_vec = vec![diff_len as f32; w * h];
     for i in 0..h {
         if i % block_h != 0 { continue } // For step_by
         for j in 0..w {
             if j % block_w != 0 { continue } // For step_by
             let mut min_diff_point = std::f32::MAX;
-            let mut min_diff_index = max_diff;
-            for k in 0..max_diff {
+            let mut min_diff_index = diff_len;
+            for k in 0..diff_len {
                 let diff_point = get_diff_point(&left_mat, &right_mat, block_w, block_h, j+k, i, j, i);
                 if diff_point < min_diff_point {
                     min_diff_point = diff_point;
@@ -98,10 +98,10 @@ fn main() {
     let (w, h) = mat_wh(&left_mat);
     let block_w = 11;
     let block_h = 11;
-    let max_diff = w/4;
-    let result_mat = block_match(&left_mat, &right_mat, block_w, block_h, max_diff);
-    let max_diff_f32 =  max_diff as f32;
-    let result_mat = (max_diff_f32 - result_mat) / max_diff_f32 * 200.0;
+    let diff_len = w/4;
+    let result_mat = block_match(&left_mat, &right_mat, block_w, block_h, diff_len);
+    let diff_len_f32 =  diff_len as f32;
+    let result_mat = (diff_len_f32 - result_mat) / diff_len_f32 * 200.0;
     let mut pixels = vec![];
     for p in result_mat.into_shape(w * h).unwrap().to_vec() {
         pixels.extend(hsv_to_rgb(p as u8, 255, 255));
