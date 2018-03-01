@@ -21,17 +21,6 @@ fn mat_wh(mat: &Array2<f32>) -> (usize, usize) {
     (shape[1], shape[0])
 }
 
-fn fill_vec(target_vec: &mut Vec<f32>, value: f32, start_x: usize, start_y: usize, fill_w: usize, fill_h: usize, line_w: usize, line_h: usize) {
-    for i in start_y.. start_y + fill_h {
-        if i >= line_h { continue }
-        for j in start_x.. start_x + fill_w {
-            if j >= line_w { continue }
-            let index = i*line_w + j;
-            target_vec[index] = value;
-        }
-    }
-}
-
 fn get_diff_point(left_mat: &Array2<f32>, right_mat: &Array2<f32>, block_w: usize, block_h: usize, left_x: usize, left_y: usize, right_x: usize, right_y: usize) -> f32 {
     let (w, h) = mat_wh(&left_mat);
     if left_x + block_w >= w || right_x + block_w >= w ||
@@ -46,24 +35,26 @@ fn get_diff_point(left_mat: &Array2<f32>, right_mat: &Array2<f32>, block_w: usiz
 
 fn block_match(left_mat: &Array2<f32>, right_mat: &Array2<f32>, block_w: usize, block_h: usize, diff_len: usize) -> Array2<f32> {
     let (w, h) = mat_wh(&left_mat);
-    let mut diff_vec = vec![diff_len as f32; w * h];
-    for i in 0..h {
-        if i % block_h != 0 { continue } // For step_by
-        for j in 0..w {
-            if j % block_w != 0 { continue } // For step_by
+    let mut diff_vec = vec![];
+    let result_w = w / block_w;
+    let result_h = h / block_h;
+    for i in 0..result_h {
+        for j in 0..result_w {
             let mut min_diff_point = std::f32::MAX;
             let mut min_diff_index = diff_len;
             for k in 0..diff_len {
-                let diff_point = get_diff_point(&left_mat, &right_mat, block_w, block_h, j+k, i, j, i);
+                let x = j * block_w;
+                let y = i * block_h;
+                let diff_point = get_diff_point(&left_mat, &right_mat, block_w, block_h, x+k, y, x, y);
                 if diff_point < min_diff_point {
                     min_diff_point = diff_point;
                     min_diff_index = k;
                 }
             }
-            fill_vec(&mut diff_vec, min_diff_index as f32, j, i, block_w, block_h, w, h);
+            diff_vec.push(min_diff_index as f32);
         }
     }
-    Array::from_vec(diff_vec).into_shape((h, w)).unwrap()
+    Array::from_vec(diff_vec).into_shape((result_h, result_w)).unwrap()
 }
 
 fn hsv_to_rgb(h: u8, s: u8, v: u8) -> Vec<u8> {
@@ -95,17 +86,18 @@ fn main() {
     let right_image_file_name = "data/right.png";
     let left_mat = get_gray_mat(&left_image_file_name);
     let right_mat = get_gray_mat(&right_image_file_name);
-    let (w, h) = mat_wh(&left_mat);
+    let (w, _h) = mat_wh(&left_mat);
     let block_w = 11;
     let block_h = 11;
     let diff_len = w/4;
     let result_mat = block_match(&left_mat, &right_mat, block_w, block_h, diff_len);
-    let diff_len_f32 =  diff_len as f32;
+    let diff_len_f32 = diff_len as f32;
     let result_mat = (diff_len_f32 - result_mat) / diff_len_f32 * 200.0;
     let mut pixels = vec![];
-    for p in result_mat.into_shape(w * h).unwrap().to_vec() {
+    let (result_w, result_h) = mat_wh(&result_mat);
+    for p in result_mat.into_shape(result_w * result_h).unwrap().to_vec() {
         pixels.extend(hsv_to_rgb(p as u8, 255, 255));
     }
-    let result_image = RgbImage::from_raw(w as u32, h as u32, pixels).unwrap();
+    let result_image = RgbImage::from_raw(result_w as u32, result_h as u32, pixels).unwrap();
     let _saved = result_image.save("result.png");
 }
