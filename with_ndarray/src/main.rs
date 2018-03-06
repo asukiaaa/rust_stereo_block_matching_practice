@@ -80,10 +80,10 @@ fn hsv_to_rgb(h: u8, s: u8, v: u8) -> Vec<u8> {
 }
 
 fn main() {
-    // let left_image_file_name = "data/aloeL.jpg";
-    // let right_image_file_name = "data/aloeR.jpg";
-    let left_image_file_name = "data/left.png";
-    let right_image_file_name = "data/right.png";
+    // let left_image_file_name = "../data/aloeL.jpg";
+    // let right_image_file_name = "../data/aloeR.jpg";
+    let left_image_file_name = "../data/left.png";
+    let right_image_file_name = "../data/right.png";
     let left_mat = get_gray_mat(&left_image_file_name);
     let right_mat = get_gray_mat(&right_image_file_name);
     let (w, _h) = mat_wh(&left_mat);

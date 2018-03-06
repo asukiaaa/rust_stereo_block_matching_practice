@@ -1,5 +1,5 @@
 [package]
-name = "rust_stereo_block_matching_practice"
+name = "with_ndarray"
 version = "0.1.0"
 authors = ["asuki <asukiaaa@gmail.com>"]
 
