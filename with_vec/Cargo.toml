@@ -1,0 +1,8 @@
+[package]
+name = "with_vec"
+version = "0.1.0"
+authors = ["asuki <asukiaaa@gmail.com>"]
+
+[dependencies]
+image = "*"
+time = "0.1"

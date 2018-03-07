@@ -3,6 +3,19 @@
 # Requirement
 - [Rust](https://www.rust-lang.org)
 
+# Usage
+```
+cd with_ndarray
+cargo run
+../
+```
+
+```
+cd with_vec
+cargo run
+../
+```
+
 # License
 MIT
 
