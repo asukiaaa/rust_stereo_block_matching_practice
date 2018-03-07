@@ -1,9 +1,11 @@
 extern crate image;
 #[macro_use(s)]
 extern crate ndarray;
+extern crate time;
 use image::{GenericImage, RgbImage};
 use ndarray::{Array, Array2};
 use std::ops::Sub;
+use time::PreciseTime;
 
 fn get_gray_mat(file_name: &str) -> Array2<f32> {
     let img = image::open(file_name).unwrap().grayscale();
@@ -80,6 +82,7 @@ fn hsv_to_rgb(h: u8, s: u8, v: u8) -> Vec<u8> {
 }
 
 fn main() {
+    let start_time = PreciseTime::now();
     // let left_image_file_name = "../data/aloeL.jpg";
     // let right_image_file_name = "../data/aloeR.jpg";
     let left_image_file_name = "../data/left.png";
@@ -90,7 +93,9 @@ fn main() {
     let block_w = 11;
     let block_h = 11;
     let diff_len = w/4;
+    let loaded_image_time = PreciseTime::now();
     let result_mat = block_match(&left_mat, &right_mat, block_w, block_h, diff_len);
+    let got_result_time = PreciseTime::now();
     let diff_len_f32 = diff_len as f32;
     let result_mat = (diff_len_f32 - result_mat) / diff_len_f32 * 200.0;
     let mut pixels = vec![];
@@ -100,4 +105,10 @@ fn main() {
     }
     let result_image = RgbImage::from_raw(result_w as u32, result_h as u32, pixels).unwrap();
     let _saved = result_image.save("result.png");
+    let created_result_image_time = PreciseTime::now();
+
+    println!("Load image {} sec", start_time.to(loaded_image_time));
+    println!("Get result {} sec", loaded_image_time.to(got_result_time));
+    println!("Create resutl image {} sec", got_result_time.to(created_result_image_time));
+    println!("Total {} sec", start_time.to(created_result_image_time));
 }

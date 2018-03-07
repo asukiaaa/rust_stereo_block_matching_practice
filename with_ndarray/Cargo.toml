@@ -6,3 +6,4 @@ authors = ["asuki <asukiaaa@gmail.com>"]
 [dependencies]
 image = "*"
 ndarray = "0.11"
+time = "0.1"
