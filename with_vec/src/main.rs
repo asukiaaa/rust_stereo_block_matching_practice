@@ -13,10 +13,21 @@ fn get_min_diff_index(left_pixels: &Vec<u8>, right_pixels: &Vec<u8>, w: usize, b
     let mut min_diff_index = diff_len;
     for diff_index in 0..diff_len {
         let mut diff_point:f32 = 0.0;
-        for x in (block_w * block_x)..(block_w * (block_x + 1)) {
-            for y in (block_h * block_y)..(block_h * (block_y + 1)) {
+        for y in (block_h * block_y)..(block_h * (block_y + 1)) {
+            for x in (block_w * block_x)..(block_w * (block_x + 1)) {
                 diff_point += (left_pixels[y * w + x + diff_index] as f32 - right_pixels[y * w + x] as f32).abs();
             }
+            // Using iterator is slower than direct reading of array
+            // let pixel_index = y * w + block_w * block_x;
+            // let mut left_iter = left_pixels.iter().skip(pixel_index + diff_index);
+            // let mut right_iter = right_pixels.iter().skip(pixel_index);
+            // for lr in left_iter.zip(right_iter).take(block_w) {
+            //     let (&l, &r) = lr;
+            //     diff_point += (l as f32 - r as f32).abs();
+            // }
+            // for pixel_index in (y * w + (block_w * block_x))..(y * w + (block_w * (block_x + 1))) {
+            //     diff_point += (left_pixels[pixel_index + diff_index] as f32 - right_pixels[pixel_index] as f32).abs();
+            // }
         }
         if diff_point < min_diff_point {
             min_diff_point = diff_point;
