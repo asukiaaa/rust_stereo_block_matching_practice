@@ -9,9 +9,8 @@ use time::PreciseTime;
 
 fn get_gray_mat(file_name: &str) -> Array2<f32> {
     let img = image::open(file_name).unwrap().grayscale();
-    let w = img.width(); // / 2;
-    let h = img.height(); // / 2;
-    // let img = img.resize(w, h, FilterType::Gaussian);
+    let w = img.width();
+    let h = img.height();
     let pixels = img.raw_pixels().into_iter().map(|p| p as f32).collect();
     Array::from_vec(pixels)
         .into_shape((h as usize, w as usize))
